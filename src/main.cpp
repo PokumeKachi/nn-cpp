@@ -3,8 +3,7 @@
 #include <cstdint>
 #include <iostream>
 
-#include "Architecture.hpp"
-#include "Node.hpp"
+#include "Model.hpp"
 #include "Serialization.hpp"
 
 using std::array;
@@ -13,8 +12,6 @@ using std::cout;
 using std::endl;
 using std::fill;
 using std::size_t;
-
-
 
 // void make_nodes() {
 //     fill(NODES.begin(), NODES.begin() + LAYER_SIZE[0], Node{});
@@ -43,9 +40,9 @@ using std::size_t;
 // }
 
 int main() {
-    make_nodes();
+    // make_nodes();
 
-    if (!load_model(MODEL_FILE_PATH.data())) {
+    if (!neural_network_serializer::load()) {
         cerr << "SOMETHING WENT WRONG WHILE LOADING PARAMS\n";
     }
 
@@ -77,7 +74,7 @@ int main() {
     //     cout << endl;
     // }
 
-    if (!save_model(MODEL_FILE_PATH.data())) {
+    if (!neural_network_serializer::save()) {
         cerr << "SOMETHING WENT WRONG WHILE SAVING PARAMS\n";
     }
 
