@@ -16,36 +16,27 @@ inline constexpr auto ACTIVATION = std::to_array<Activation::Tag>(
 
 }  // namespace ARCHITECTURE
 
-namespace OFFSET {
-inline constexpr auto LAYER = [] {
-    std::array<std::size_t, ARCHITECTURE::SIZE.size() + 1> result{};
-    std::partial_sum(ARCHITECTURE::SIZE.begin(), ARCHITECTURE::SIZE.end(), result.begin() + 1);
-    return result;
-}();
+namespace COUNT {
+inline constexpr auto LAYER = ARCHITECTURE::SIZE.size();
+
+inline constexpr auto NODE =
+    std::accumulate(ARCHITECTURE::SIZE.begin(), ARCHITECTURE::SIZE.end(), std::size_t{0});
 
 inline constexpr auto WEIGHT = [] {
-    std::array<std::size_t, ARCHITECTURE::SIZE.size()> result{};
+    std::size_t count = 0;
 
     for (std::size_t i = 1; i < ARCHITECTURE::SIZE.size(); ++i)
-        result[i] = result[i - 1] + ARCHITECTURE::SIZE[i - 1] * ARCHITECTURE::SIZE[i];
+        count += ARCHITECTURE::SIZE[i - 1] * ARCHITECTURE::SIZE[i];
 
-    return result;
+    return count;
 }();
 
-}  // namespace OFFSET
-
-namespace COUNT {
-
-inline constexpr auto LAYER = ARCHITECTURE::SIZE.size();
-inline constexpr auto NODE = OFFSET::LAYER.back();
-inline constexpr auto WEIGHT = OFFSET::WEIGHT.back();
-inline constexpr auto BIAS = NODE - ARCHITECTURE::SIZE.front();
+inline constexpr auto BIAS =
+    std::accumulate(ARCHITECTURE::SIZE.begin() + 1, ARCHITECTURE::SIZE.end(), std::size_t{0});
 
 }  // namespace COUNT
 
 namespace neural_network {
-
 inline std::array<std::int8_t, COUNT::WEIGHT> weights{};
 inline std::array<std::int8_t, COUNT::BIAS> biases{};
-
 }  // namespace neural_network
