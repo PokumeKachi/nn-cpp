@@ -9,11 +9,18 @@ project(
     ],
 )
 
+add_project_arguments(
+    '-march=native',
+    '-ffast-math',
+    language : 'cpp',
+)
+
 inc = include_directories('include')
 
 sources = files(
     'src/main.cpp',
-    'src/Node.cpp',
+    'src/Propagation.cpp',
+    'src/Serialization.cpp',
 )
 
 executable('nn-out', sources, include_directories: inc)

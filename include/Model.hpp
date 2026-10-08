@@ -7,36 +7,37 @@
 
 #include "Activation.hpp"
 
+using std::accumulate;
+using std::array;
+using std::to_array;
+
 namespace ARCHITECTURE {
-
-inline constexpr auto SIZE = std::to_array<std::size_t>({5, 3, 5});
-
-inline constexpr auto ACTIVATION = std::to_array<Activation::Tag>(
-    {Activation::LeakyRelu{}, Activation::LeakyRelu{}, Activation::Identity{}});
-
+inline constexpr size_t INPUTS = 2;
+inline constexpr auto HIDDEN = to_array<size_t>({3, 2});
+inline constexpr auto ACTIVATION =
+    to_array<Activation::Tag>({Activation::Identity{}, Activation::Identity{}});
 }  // namespace ARCHITECTURE
 
 namespace COUNT {
-inline constexpr auto LAYER = ARCHITECTURE::SIZE.size();
-
-inline constexpr auto NODE =
-    std::accumulate(ARCHITECTURE::SIZE.begin(), ARCHITECTURE::SIZE.end(), std::size_t{0});
-
-inline constexpr auto WEIGHT = [] {
-    std::size_t count = 0;
-
-    for (std::size_t i = 1; i < ARCHITECTURE::SIZE.size(); ++i)
-        count += ARCHITECTURE::SIZE[i - 1] * ARCHITECTURE::SIZE[i];
-
+// inline constexpr auto HIDDEN_LAYERS = ARCHITECTURE::HIDDEN.size();
+// inline constexpr auto LAYERS = 1 + HIDDEN_LAYERS;
+inline constexpr auto HIDDEN_NODES =
+    accumulate(ARCHITECTURE::HIDDEN.begin(), ARCHITECTURE::HIDDEN.end(), size_t{0});
+inline constexpr auto NODES = ARCHITECTURE::INPUTS + HIDDEN_NODES;
+inline constexpr auto CONNECTIONS = [] {
+    if constexpr (ARCHITECTURE::HIDDEN.empty()) {
+        return size_t{0};
+    }
+    size_t count = ARCHITECTURE::INPUTS * ARCHITECTURE::HIDDEN.front();
+    for (size_t i = 1; i < ARCHITECTURE::HIDDEN.size(); ++i) {
+        count += ARCHITECTURE::HIDDEN[i - 1] * ARCHITECTURE::HIDDEN[i];
+    }
     return count;
 }();
-
-inline constexpr auto BIAS =
-    std::accumulate(ARCHITECTURE::SIZE.begin() + 1, ARCHITECTURE::SIZE.end(), std::size_t{0});
-
 }  // namespace COUNT
 
 namespace neural_network {
-inline std::array<std::int8_t, COUNT::WEIGHT> weights{};
-inline std::array<std::int8_t, COUNT::BIAS> biases{};
+using PARAMETER_TYPE = Activation::PARAMETER_TYPE;
+inline array<PARAMETER_TYPE, COUNT::CONNECTIONS> weights{};
+inline array<PARAMETER_TYPE, COUNT::HIDDEN_NODES> biases{};
 }  // namespace neural_network

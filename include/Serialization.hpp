@@ -13,7 +13,7 @@ constexpr std::array<char, 16> PATH_TO_SERIALIZED_BINARY = []() constexpr {
         h *= 1099511628211ull;
     };
 
-    for (auto n : ARCHITECTURE::SIZE) mix(static_cast<std::uint64_t>(n));
+    for (auto n : ARCHITECTURE::HIDDEN) mix(static_cast<std::uint64_t>(n));
     for (auto& a : ARCHITECTURE::ACTIVATION) mix(static_cast<std::uint64_t>(a.index()));
 
     constexpr char A[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";

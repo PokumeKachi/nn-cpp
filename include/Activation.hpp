@@ -1,72 +1,129 @@
 #pragma once
 
-#include <cstdint>
+#include <cmath>
+#include <type_traits>
 #include <variant>
 
 namespace Activation {
+
+using PARAMETER_TYPE = float;
+
 struct Identity {
-    static constexpr int8_t apply(int8_t x) noexcept { return x; }
-    static constexpr int8_t derive(int8_t) noexcept { return 1; }
+    static constexpr PARAMETER_TYPE apply(PARAMETER_TYPE x) noexcept { return x; }
+
+    static constexpr PARAMETER_TYPE derive(PARAMETER_TYPE) noexcept { return 1.0f; }
 };
 
 struct Relu {
-    static constexpr int8_t apply(int8_t x) noexcept { return x < 0 ? 0 : x; }
-    static constexpr int8_t derive(int8_t x) noexcept { return x > 0 ? 1 : 0; }
+    static constexpr PARAMETER_TYPE apply(PARAMETER_TYPE x) noexcept { return x < 0.0f ? 0.0f : x; }
+
+    static constexpr PARAMETER_TYPE derive(PARAMETER_TYPE x) noexcept {
+        return x > 0.0f ? 1.0f : 0.0f;
+    }
 };
 
 struct LeakyRelu {
-    static constexpr int8_t apply(int8_t x) noexcept {
-        return x >= 0 ? x : static_cast<int8_t>(x >> 3);
+    static constexpr PARAMETER_TYPE apply(PARAMETER_TYPE x) noexcept {
+        return x >= 0.0f ? x : x * 0.125f;
     }
-    static constexpr int8_t derive(int8_t) noexcept { return 1; }
+
+    static constexpr PARAMETER_TYPE derive(PARAMETER_TYPE x) noexcept {
+        return x >= 0.0f ? 1.0f : 0.125f;
+    }
 };
 
 struct Relu6 {
-    static constexpr int8_t apply(int8_t x) noexcept { return x < 0 ? 0 : (x > 6 ? 6 : x); }
-    static constexpr int8_t derive(int8_t x) noexcept { return (x > 0 && x <= 6) ? 1 : 0; }
+    static constexpr PARAMETER_TYPE apply(PARAMETER_TYPE x) noexcept {
+        return x < 0.0f ? 0.0f : (x > 6.0f ? 6.0f : x);
+    }
+
+    static constexpr PARAMETER_TYPE derive(PARAMETER_TYPE x) noexcept {
+        return (x > 0.0f && x < 6.0f) ? 1.0f : 0.0f;
+    }
 };
 
 struct HardTanh {
-    static constexpr int8_t apply(int8_t x) noexcept { return x < -1 ? -1 : (x > 1 ? 1 : x); }
-    static constexpr int8_t derive(int8_t x) noexcept { return (x >= -1 && x <= 1) ? 1 : 0; }
+    static constexpr PARAMETER_TYPE apply(PARAMETER_TYPE x) noexcept {
+        return x < -1.0f ? -1.0f : (x > 1.0f ? 1.0f : x);
+    }
+
+    static constexpr PARAMETER_TYPE derive(PARAMETER_TYPE x) noexcept {
+        return (x > -1.0f && x < 1.0f) ? 1.0f : 0.0f;
+    }
 };
 
 struct BinaryStep {
-    static constexpr int8_t apply(int8_t x) noexcept { return x >= 0 ? 1 : 0; }
-    static constexpr int8_t derive(int8_t) noexcept { return 0; }
+    static constexpr PARAMETER_TYPE apply(PARAMETER_TYPE x) noexcept {
+        return x >= 0.0f ? 1.0f : 0.0f;
+    }
+
+    static constexpr PARAMETER_TYPE derive(PARAMETER_TYPE) noexcept { return 0.0f; }
 };
 
 struct Signum {
-    static constexpr int8_t apply(int8_t x) noexcept { return x > 0 ? 1 : (x < 0 ? -1 : 0); }
-    static constexpr int8_t derive(int8_t) noexcept { return 0; }
+    static constexpr PARAMETER_TYPE apply(PARAMETER_TYPE x) noexcept {
+        return x > 0.0f ? 1.0f : (x < 0.0f ? -1.0f : 0.0f);
+    }
+
+    static constexpr PARAMETER_TYPE derive(PARAMETER_TYPE) noexcept { return 0.0f; }
 };
 
 struct Absolute {
-    static constexpr int8_t apply(int8_t x) noexcept {
-        return x == -128 ? 127 : (x < 0 ? static_cast<int8_t>(-x) : x);
+    static constexpr PARAMETER_TYPE apply(PARAMETER_TYPE x) noexcept { return x < 0.0f ? -x : x; }
+
+    static constexpr PARAMETER_TYPE derive(PARAMETER_TYPE x) noexcept {
+        return x > 0.0f ? 1.0f : (x < 0.0f ? -1.0f : 0.0f);
     }
-    static constexpr int8_t derive(int8_t x) noexcept { return x > 0 ? 1 : (x < 0 ? -1 : 0); }
 };
 
 struct Square {
-    static constexpr int8_t apply(int8_t x) noexcept {
-        const int32_t sq = static_cast<int32_t>(x) * static_cast<int32_t>(x);
-        return sq > 127 ? 127 : static_cast<int8_t>(sq);
+    static constexpr PARAMETER_TYPE apply(PARAMETER_TYPE x) noexcept {
+        const PARAMETER_TYPE square = x * x;
+        return square > 127.0f ? 127.0f : square;
     }
-    static constexpr int8_t derive(int8_t x) noexcept {
-        return (x >= -11 && x <= 11) ? static_cast<int8_t>(2 * x) : 0;
+
+    static constexpr PARAMETER_TYPE derive(PARAMETER_TYPE x) noexcept {
+        return x * x <= 127.0f ? 2.0f * x : 0.0f;
     }
 };
 
-using Tag = std::variant<Activation::Identity, Activation::Relu, Activation::LeakyRelu,
-                         Activation::Relu6, Activation::HardTanh, Activation::BinaryStep,
-                         Activation::Signum, Activation::Absolute, Activation::Square>;
+struct Sigmoid {
+    static PARAMETER_TYPE apply(PARAMETER_TYPE x) noexcept { return 1.0f / (1.0f + std::exp(-x)); }
 
-inline int8_t apply(const Tag& t, int8_t x) noexcept {
-    return std::visit([x](auto tag) { return std::remove_cvref_t<decltype(tag)>::apply(x); }, t);
+    static PARAMETER_TYPE derive(PARAMETER_TYPE x) noexcept {
+        const PARAMETER_TYPE y = apply(x);
+        return y * (1.0f - y);
+    }
+};
+
+struct Tanh {
+    static PARAMETER_TYPE apply(PARAMETER_TYPE x) noexcept { return std::tanh(x); }
+
+    static PARAMETER_TYPE derive(PARAMETER_TYPE x) noexcept {
+        const PARAMETER_TYPE y = apply(x);
+        return 1.0f - y * y;
+    }
+};
+
+using Tag =
+    std::variant<Identity, Relu, LeakyRelu, Relu6, HardTanh, BinaryStep, Signum, Absolute, Square>;
+
+inline PARAMETER_TYPE apply(const Tag& tag, PARAMETER_TYPE x) noexcept {
+    return std::visit(
+        [x](const auto& activation) {
+            using T = std::remove_cvref_t<decltype(activation)>;
+            return T::apply(x);
+        },
+        tag);
 }
 
-inline int8_t derive(const Tag& t, int8_t x) noexcept {
-    return std::visit([x](auto tag) { return std::remove_cvref_t<decltype(tag)>::derive(x); }, t);
+inline PARAMETER_TYPE derive(const Tag& tag, PARAMETER_TYPE x) noexcept {
+    return std::visit(
+        [x](const auto& activation) {
+            using T = std::remove_cvref_t<decltype(activation)>;
+            return T::derive(x);
+        },
+        tag);
 }
+
 }  // namespace Activation

@@ -1,7 +1,7 @@
+#include "Serialization.hpp"
+
 #include <cstdio>
 #include <fstream>
-
-#include "Serialization.hpp"
 
 namespace neural_network_serializer {
 bool save() {

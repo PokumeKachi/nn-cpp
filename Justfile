@@ -2,7 +2,7 @@ _default:
     @just --choose
 
 BUILD_DIR := "build"
-BUILD_ARGS := "-Dbuildtype=release"
+BUILD_ARGS := "-Dbuildtype=debug"
 
 setup:
     meson setup {{BUILD_DIR}} {{BUILD_ARGS}}
