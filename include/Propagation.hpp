@@ -13,5 +13,6 @@ using neural_network::PARAMETER_TYPE;
 namespace propagation {
 array<PARAMETER_TYPE, HIDDEN.back()> forward(const array<PARAMETER_TYPE, INPUTS>& input);
 PARAMETER_TYPE backward(const array<PARAMETER_TYPE, INPUTS>& input,
-                        const array<PARAMETER_TYPE, HIDDEN.back()>& target);
+                        const array<PARAMETER_TYPE, HIDDEN.back()>& target,
+                        PARAMETER_TYPE learning_rate);
 }  // namespace propagation

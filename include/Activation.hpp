@@ -106,7 +106,7 @@ struct Tanh {
 };
 
 using Tag =
-    std::variant<Identity, Relu, LeakyRelu, Relu6, HardTanh, BinaryStep, Signum, Absolute, Square>;
+    std::variant<Identity, Relu, LeakyRelu, Relu6, HardTanh, BinaryStep, Signum, Absolute, Square, Sigmoid, Tanh>;
 
 inline PARAMETER_TYPE apply(const Tag& tag, PARAMETER_TYPE x) noexcept {
     return std::visit(

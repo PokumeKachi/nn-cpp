@@ -19,8 +19,8 @@ inc = include_directories('include')
 
 sources = files(
     'src/main.cpp',
-    'src/Propagation.cpp',
-    'src/Serialization.cpp',
+    'include/Propagation.cpp',
+    'include/Serialization.cpp',
 )
 
 executable('nn-out', sources, include_directories: inc)

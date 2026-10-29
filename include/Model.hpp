@@ -12,15 +12,13 @@ using std::array;
 using std::to_array;
 
 namespace ARCHITECTURE {
-inline constexpr size_t INPUTS = 2;
-inline constexpr auto HIDDEN = to_array<size_t>({3, 2});
-inline constexpr auto ACTIVATION =
-    to_array<Activation::Tag>({Activation::Identity{}, Activation::Identity{}});
+inline constexpr size_t INPUTS = 3;
+inline constexpr auto HIDDEN = to_array<size_t>({8, 8, 2});
+inline constexpr auto ACTIVATION = to_array<Activation::Tag>(
+    {Activation::Tanh{}, Activation::LeakyRelu{}, Activation::Identity{}});
 }  // namespace ARCHITECTURE
 
 namespace COUNT {
-// inline constexpr auto HIDDEN_LAYERS = ARCHITECTURE::HIDDEN.size();
-// inline constexpr auto LAYERS = 1 + HIDDEN_LAYERS;
 inline constexpr auto HIDDEN_NODES =
     accumulate(ARCHITECTURE::HIDDEN.begin(), ARCHITECTURE::HIDDEN.end(), size_t{0});
 inline constexpr auto NODES = ARCHITECTURE::INPUTS + HIDDEN_NODES;
