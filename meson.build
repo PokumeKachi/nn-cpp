@@ -11,7 +11,6 @@ project(
 
 add_project_arguments(
     '-march=native',
-    '-ffast-math',
     language : 'cpp',
 )
 
