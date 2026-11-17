@@ -41,10 +41,9 @@ float getLoss() {
 
 void train() {
     auto shi = dist(rng);
-    for (float learning_rate = 0.1; learning_rate >= 0.000000001;
-         learning_rate /= 6.0 * shi) {
+    for (float learning_rate = 0.0000001; learning_rate >= 0.000000001; learning_rate /= 6.0 * shi) {
         // for (int _ = 0; _ < 10; ++_) {
-        for (int wuhbluh = 0; wuhbluh < 1000; ++wuhbluh) {
+        for (int wuhbluh = 0; wuhbluh < 500; ++wuhbluh) {
             for (float i = -1.0; i < 1.0; i += 0.1 * shi) {
                 for (float j = -1.0; j < 1.0; j += 0.1 * shi) {
                     propagation::backward({i, i * i, j}, {TARGET_FUNCTION(i, j)}, learning_rate);
@@ -52,6 +51,7 @@ void train() {
             }
         }
         // }
+        DEBUG(learning_rate);
         DEBUG(getLoss());
 
         DEBUG("ABOVE IS THE FINAL LOSS");
@@ -64,6 +64,11 @@ int main() {
         cerr << "SOMETHING WENT WRONG WHILE LOADING PARAMS\n";
         std::fill(neural_network::weights.begin(), neural_network::weights.end(), 0.1);
         std::fill(neural_network::biases.begin(), neural_network::biases.end(), 0.1);
+
+        std::generate(neural_network::weights.begin(), neural_network::weights.end(),
+                      [&] { return dist(rng); });
+        std::generate(neural_network::biases.begin(), neural_network::biases.end(),
+                      [&] { return dist(rng); });
     }
 
     // std::iota(neural_network::weights.begin(), neural_network::weights.end(), 1);
@@ -73,8 +78,8 @@ int main() {
     // std::generate(neural_network::biases.begin(), neural_network::biases.end(),
     //               [&] { return dist(rng); });
 
-    train();
-    float x = 0.12124398734;
+    // train();
+    float x = 0.1;
     float y = -0.1;
 
     DEBUG(propagation::forward({x, x * x, y})[0]);

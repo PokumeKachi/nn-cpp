@@ -13,7 +13,7 @@ using std::to_array;
 
 namespace ARCHITECTURE {
 inline constexpr size_t INPUTS = 3;
-inline constexpr auto HIDDEN = to_array<size_t>({8, 8, 2});
+inline constexpr auto HIDDEN = to_array<size_t>({8, 8, 1});
 inline constexpr auto ACTIVATION = to_array<Activation::Tag>(
     {Activation::Tanh{}, Activation::LeakyRelu{}, Activation::Identity{}});
 }  // namespace ARCHITECTURE
